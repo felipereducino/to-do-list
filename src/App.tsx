@@ -1,48 +1,47 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import * as Styled from "./App.styles";
-import { Item } from "./types/item";
+import { ApiResponse } from "./types/api";
 import ListItem from "./components/ListItem";
 import AddArea from "./components/AddArea";
+import { getObjects } from "./components/services/api";
 
 const App = () => {
-  const [list, setList] = useState<Item[]>([
-    {
-      id: 1,
-      name: "Comprar pão",
-      done: false,
-      createdAt: new Date("2023-06-01T12:00:00"),
-    },
-    {
-      id: 2,
-      name: "Comprar bolo",
-      done: true,
-      createdAt: new Date("2023-06-02T12:00:00"),
-    },
-  ]);
+  const [list, setList] = useState<ApiResponse[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await getObjects();
+        setList(data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    fetchData();
+  }, []);
 
   const handleAddTask = useCallback((taskName: string) => {
     setList((prevList) => [
       ...prevList,
       {
-        id: prevList.length + 1,
+        id: (prevList.length + 1).toString(),
         name: taskName,
-        done: false,
-        createdAt: new Date(),
+        data: null,
       },
     ]);
   }, []);
 
-  const handleToggleDone = useCallback((id: number, done: boolean) => {
+  const handleToggleDone = useCallback((id: string, done: boolean) => {
     setList((prevList) =>
       prevList.map((item) => (item.id === id ? { ...item, done } : item))
     );
   }, []);
 
-  const handleDeleteTask = useCallback((id: number) => {
+  const handleDeleteTask = useCallback((id: string) => {
     setList((prevList) => prevList.filter((item) => item.id !== id));
   }, []);
 
-  const handleEditTask = useCallback((id: number, newName: string) => {
+  const handleEditTask = useCallback((id: string, newName: string) => {
     setList((prevList) =>
       prevList.map((item) =>
         item.id === id ? { ...item, name: newName } : item

@@ -1,17 +1,17 @@
 import React, { useState, useEffect, useRef, useCallback, memo } from "react";
 import * as Styled from "./styles";
-import { Item } from "../../types/item";
+import { ApiResponse } from "../../types/api";
 
 type Props = {
-  item: Item;
-  onToggleDone: (id: number, done: boolean) => void;
-  onDeleteTask: (id: number) => void;
-  onEditTask: (id: number, newName: string) => void;
+  item: ApiResponse;
+  onToggleDone: (id: string, done: boolean) => void;
+  onDeleteTask: (id: string) => void;
+  onEditTask: (id: string, newName: string) => void;
 };
 
 const ListItem = memo(
   ({ item, onToggleDone, onDeleteTask, onEditTask }: Props) => {
-    const [isChecked, setIsChecked] = useState(item.done);
+    const [isChecked, setIsChecked] = useState(false); // Assuming done is not part of the API data
     const [isEditing, setIsEditing] = useState(false);
     const [newName, setNewName] = useState(item.name);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -49,14 +49,14 @@ const ListItem = memo(
       }
     }, [isEditing]);
 
-    const formatDate = (date: Date) => {
-      const options: Intl.DateTimeFormatOptions = {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-      };
-      return new Intl.DateTimeFormat("en-US", options).format(date);
-    };
+    // const formatDate = (date: string) => {
+    //   const options: Intl.DateTimeFormatOptions = {
+    //     year: "numeric",
+    //     month: "2-digit",
+    //     day: "2-digit",
+    //   };
+    //   return new Intl.DateTimeFormat("en-US", options).format(new Date(date));
+    // };
 
     return (
       <Styled.Container done={isChecked}>
@@ -75,7 +75,6 @@ const ListItem = memo(
         ) : (
           <>
             <label>{item.name}</label>
-            <span>{formatDate(item.createdAt)}</span>
             <button onClick={handleEdit}>Edit</button>
           </>
         )}
